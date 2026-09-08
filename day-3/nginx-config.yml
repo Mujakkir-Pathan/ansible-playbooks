@@ -1,0 +1,31 @@
+---
+- name: Configure Nginx with handlers
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Copy Nginx configuration
+      copy:
+        src: files/nginx.conf
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart Nginx
+
+    - name: Create custom index page
+      copy:
+        content: "<h1>Configured by Ansible Handler</h1>"
+        dest: /var/www/html/index.html
+
+    - name: Ensure Nginx is running
+      service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
